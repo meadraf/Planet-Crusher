@@ -6,10 +6,10 @@ namespace _Project.Scripts
     {
         [SerializeField] private GameObject _planetPrefab;
         [SerializeField] private float _rotationSpeed = 6f;
-    
+
         private PlanetModel _planetModel;
         private Transform _transform;
-    
+
         private void Awake()
         {
             _transform = transform;
@@ -18,14 +18,13 @@ namespace _Project.Scripts
         public void Initialize(PlanetModel planetModel)
         {
             _planetModel = planetModel;
-        
+
             // Subscribe to updates from PlanetModel
         }
 
         private void Update()
         {
-            // Rotate the planet
-            _transform.Rotate(Vector3.up * (Time.deltaTime * _rotationSpeed));
+            _transform.Rotate(Vector3.down * (_rotationSpeed * Time.deltaTime));
         }
 
         private void RemoveSphere(Vector3 position)
