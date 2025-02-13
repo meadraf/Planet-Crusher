@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using _Project.Scripts.Planet;
 using UnityEngine;
 using Zenject;
 
@@ -14,29 +16,27 @@ namespace _Project.Scripts.Services
         private int _numberOfPatches = 3;
         private float _neighborDistance;
 
-        private ResourceProvider _resourceProvider;
-        private Dictionary<long, int> _middlePointCache = new();
-        private List<Vector3> _vertices = new();
+        private readonly Dictionary<long, int> _middlePointCache = new();
+        private readonly List<Vector3> _vertices = new();
+        private readonly Dictionary<Vector3, Material> _vertexMaterials = new();
+        private readonly Dictionary<Vector3, GameObject> _sphereObjects = new();
+        private readonly List<Dictionary<Material, HashSet<GameObject>>> _colorPatches = new();
         private List<int> _triangles = new();
-        private Dictionary<Vector3, Material> _vertexMaterials = new();
-        private Dictionary<Vector3, GameObject> _sphereObjects = new();
-        private Dictionary<Vector3, List<Vector3>> _neighborMap = new();
 
         [Inject]
         public PlanetGenerationService(ResourceProvider resourceProvider)
         {
-            _resourceProvider = resourceProvider;
-            _materials = _resourceProvider.LoadSphereMaterials();
-            _spherePrefab = _resourceProvider.LoadSpherePrefab();
+            var resourceProvider1 = resourceProvider;
+            _materials = resourceProvider1.LoadSphereMaterials();
+            _spherePrefab = resourceProvider1.LoadSpherePrefab();
         }
 
         public PlanetData GeneratePlanet(Transform parentTransform)
         {
             GenerateIcosphere();
             CreateSpheres(parentTransform);
-            BuildNeighborMap();
 
-            return new PlanetData(_sphereObjects, _neighborMap, _vertexMaterials);
+            return new PlanetData(_sphereObjects.Select(v => v.Value).ToList(), _colorPatches);
         }
 
         private void GenerateIcosphere()
@@ -55,7 +55,7 @@ namespace _Project.Scripts.Services
             AddVertex(new Vector3(t, 0, 1).normalized);
             AddVertex(new Vector3(-t, 0, -1).normalized);
             AddVertex(new Vector3(-t, 0, 1).normalized);
-            
+
             AddFace(0, 11, 5);
             AddFace(0, 5, 1);
             AddFace(0, 1, 7);
@@ -76,9 +76,8 @@ namespace _Project.Scripts.Services
             AddFace(6, 2, 10);
             AddFace(8, 6, 7);
             AddFace(9, 8, 1);
-            
+
             Subdivide();
-            GenerateColorPatches();
         }
 
         private void Subdivide()
@@ -111,6 +110,7 @@ namespace _Project.Scripts.Services
             for (var i = 0; i < _numberOfPatches; i++)
             {
                 centers.Add(Random.onUnitSphere);
+                _colorPatches.Add(new Dictionary<Material, HashSet<GameObject>>());
             }
 
             foreach (var vertex in _vertices)
@@ -127,6 +127,17 @@ namespace _Project.Scripts.Services
                 }
 
                 _vertexMaterials[vertex] = _materials[closestCenterIndex % _materials.Length];
+
+                if (_colorPatches[closestCenterIndex].TryGetValue(_materials[closestCenterIndex % _materials.Length],
+                        out var gameObjects) == false)
+                {
+                    _colorPatches[closestCenterIndex].Add(_materials[closestCenterIndex % _materials.Length],
+                        new HashSet<GameObject> {_sphereObjects[vertex]});
+                }
+                else
+                {
+                    gameObjects.Add(_sphereObjects[vertex]);
+                }
             }
         }
 
@@ -135,13 +146,14 @@ namespace _Project.Scripts.Services
             _vertices.Add(vertex);
             return _vertices.Count - 1;
         }
-        
+
         private void AddFace(int v1, int v2, int v3)
         {
             _triangles.Add(v1);
             _triangles.Add(v2);
             _triangles.Add(v3);
         }
+
         private int GetMiddlePoint(int p1, int p2)
         {
             var key = ((long) Mathf.Min(p1, p2) << 32) + Mathf.Max(p1, p2);
@@ -159,38 +171,16 @@ namespace _Project.Scripts.Services
             {
                 var position = vertex * _radius;
                 var sphere = Object.Instantiate(_spherePrefab, position, Quaternion.identity, parentTransform);
+                _sphereObjects[vertex] = sphere;
                 sphere.transform.localScale = Vector3.one * (_smallSphereRadius * 2);
-                sphere.GetComponent<Renderer>().material = _vertexMaterials[vertex];
-                _sphereObjects[position] = sphere;
-                Debug.Log($"sphere {sphere.name}");
             }
-        }
 
-        private void BuildNeighborMap()
-        {
-            _neighborMap.Clear();
-            var positions = new List<Vector3>(_sphereObjects.Keys);
-            var distances = new List<float>();
+            GenerateColorPatches();
 
-            foreach (var pos1 in positions)
+            foreach (var vector in _sphereObjects.Keys)
             {
-                List<(Vector3, float)> nearestNeighbors = new();
-                foreach (var pos2 in positions)
-                {
-                    if (pos1 == pos2) continue;
-                    var distance = Vector3.Distance(pos1, pos2);
-                    nearestNeighbors.Add((pos2, distance));
-                    distances.Add(distance);
-                }
-
-                nearestNeighbors.Sort((a, b) => a.Item2.CompareTo(b.Item2));
-                _neighborMap[pos1] = nearestNeighbors.GetRange(0, Mathf.Min(6, nearestNeighbors.Count))
-                    .ConvertAll(n => n.Item1);
+                _sphereObjects[vector].GetComponent<Renderer>().material = _vertexMaterials[vector];
             }
-
-            if (distances.Count < 6) return;
-            distances.Sort();
-            _neighborDistance = distances[5];
         }
     }
 }
