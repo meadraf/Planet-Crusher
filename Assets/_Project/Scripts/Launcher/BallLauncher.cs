@@ -5,7 +5,6 @@ using _Project.Scripts.Planet;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 using Zenject;
 
 namespace _Project.Scripts.Launcher
@@ -23,9 +22,6 @@ namespace _Project.Scripts.Launcher
         [SerializeField] private float _ballSpawnDelay = 0.3f;
         [SerializeField] private int _maxBalls = 10;
         [SerializeField] private TMP_Text _ballsLeftText;
-        [SerializeField] private GameObject _gameOverPopup; // Reference to the pop-up window
-        [SerializeField] private TMP_Text _gameOverText; // Text to display in the pop-up
-        [SerializeField] private Button _restartButton; // Button to restart the game
 
         private Vector2 _startTouchPosition;
         private Vector2 _currentTouchPosition;
@@ -50,12 +46,6 @@ namespace _Project.Scripts.Launcher
             _ballsLeft = _maxBalls;
             UpdateBallsLeftText();
             SpawnNextBall();
-
-            // Hide the pop-up window at the start
-            if (_gameOverPopup != null)
-            {
-                _gameOverPopup.SetActive(false);
-            }
         }
 
         private void Awake()
@@ -105,8 +95,8 @@ namespace _Project.Scripts.Launcher
                 var ballRenderer = _currentBall.GetComponent<Renderer>();
                 if (ballRenderer != null)
                 {
-                    var material = ballRenderer.material;
-                    _lineRenderer.material = material;
+                    var ballColor = ballRenderer.material;
+                    _lineRenderer.material = ballColor;
                 }
             }
 
@@ -167,13 +157,9 @@ namespace _Project.Scripts.Launcher
             var ray = _mainCamera.ScreenPointToRay(new Vector3(screenPosition.x, screenPosition.y, 0));
             var plane = new Plane(Vector3.forward, _launchPoint.position);
 
-            if (plane.Raycast(ray, out var distance))
-            {
-                var worldPosition = ray.GetPoint(distance);
-                return new Vector2(worldPosition.x, worldPosition.y);
-            }
-
-            return screenPosition;
+            if (!plane.Raycast(ray, out var distance)) return screenPosition;
+            var worldPosition = ray.GetPoint(distance);
+            return new Vector2(worldPosition.x, worldPosition.y);
         }
 
         private void UpdateTrajectory()
@@ -235,18 +221,14 @@ namespace _Project.Scripts.Launcher
             ) * (_launchForce * (dragDistance / _maxDragDistance));
 
             ballRigidbody.linearVelocity = launchVelocity;
-            _currentBall.DelayedDestroy();
             _ballsLeft--;
             UpdateBallsLeftText();
             _currentBall = null;
 
+
             if (_ballsLeft > 0)
             {
                 StartCoroutine(DelayedBallSpawn());
-            }
-            else
-            {
-                CheckGameOver();
             }
         }
 
@@ -254,52 +236,6 @@ namespace _Project.Scripts.Launcher
         {
             yield return new WaitForSeconds(_ballSpawnDelay);
             SpawnNextBall();
-        }
-
-        private void CheckGameOver()
-        {
-            // Check if all spheres are destroyed or no balls are left
-            if (_ballsLeft <= 0 && AreAllSpheresDestroyed())
-            {
-                ShowGameOverPopup("All Spheres Destroyed!");
-            }
-            else if (_ballsLeft <= 0)
-            {
-                ShowGameOverPopup("No Balls Left!");
-            }
-        }
-
-        private bool AreAllSpheresDestroyed()
-        {
-            // Implement logic to check if all spheres are destroyed
-            // Example: Check if all sphere GameObjects are null or inactive
-            return true; // Replace with actual logic
-        }
-
-        private void ShowGameOverPopup(string message)
-        {
-            if (_gameOverPopup != null)
-            {
-                _gameOverPopup.SetActive(true);
-                if (_gameOverText != null)
-                {
-                    _gameOverText.text = message;
-                }
-            }
-        }
-
-        private void RestartGame()
-        {
-            // Reset the game state
-            _ballsLeft = _maxBalls;
-            UpdateBallsLeftText();
-            SpawnNextBall();
-
-            // Hide the pop-up window
-            if (_gameOverPopup != null)
-            {
-                _gameOverPopup.SetActive(false);
-            }
         }
     }
 }

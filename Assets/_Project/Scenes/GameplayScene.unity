@@ -119,11 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &144013307 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8491506714675917131, guid: 11e765d575325439ca3344138259e6fa, type: 3}
-  m_PrefabInstance: {fileID: 3054364838262920285}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &523992616
 GameObject:
   m_ObjectHideFlags: 0
@@ -1152,66 +1147,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5191622031193261531, guid: 11e765d575325439ca3344138259e6fa, type: 3}
   m_PrefabInstance: {fileID: 3054364838262920285}
   m_PrefabAsset: {fileID: 0}
---- !u!120 &2143647349 stripped
-LineRenderer:
-  m_CorrespondingSourceObject: {fileID: 7509908024623169102, guid: 11e765d575325439ca3344138259e6fa, type: 3}
-  m_PrefabInstance: {fileID: 3054364838262920285}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2143647351
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 144013307}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8160db2d2584100bb0d0a2a2005f145, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _maxBalls: 10
-  _ballSpawnDelay: 0.3
-  <BallsLeft>k__BackingField: 0
-  <CurrentBall>k__BackingField: {fileID: 0}
---- !u!114 &2143647352
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 144013307}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b8e94c847eef4c33903e734aa86d14ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _ballsLeftText: {fileID: 818978898}
-  _lineRenderer: {fileID: 2143647349}
---- !u!114 &2143647353
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 144013307}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b564d05cefe4248841538784fb551e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _launchForce: 50
-  _launchPoint: {fileID: 2046004568}
-  _maxDragDistance: 5
-  _trajectoryTimeStep: 0.02
-  _maxTrajectoryTime: 3
-  _collisionMask:
-    m_Bits: 0
-  _startTouchPosition: {x: 0, y: 0}
-  _currentTouchPosition: {x: 0, y: 0}
-  _isDragging: 0
-  _mainCamera: {fileID: 0}
-  _model: {fileID: 0}
-  _view: {fileID: 0}
 --- !u!1001 &2737262578027396165
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1503,16 +1438,7 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5191622031193261531, guid: 11e765d575325439ca3344138259e6fa, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2046004568}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8491506714675917131, guid: 11e765d575325439ca3344138259e6fa, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2143647353}
-    - targetCorrespondingSourceObject: {fileID: 8491506714675917131, guid: 11e765d575325439ca3344138259e6fa, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2143647352}
-    - targetCorrespondingSourceObject: {fileID: 8491506714675917131, guid: 11e765d575325439ca3344138259e6fa, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2143647351}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 11e765d575325439ca3344138259e6fa, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
