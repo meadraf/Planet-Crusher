@@ -13,7 +13,7 @@ namespace _Project.Scripts.Services
         private float _smallSphereRadius = 0.6f;
         private int _subdivisions = 2;
         private Material[] _materials;
-        private int _numberOfPatches = 3;
+        private int _numberOfPatches = 4;
         private float _neighborDistance;
 
         private readonly Dictionary<long, int> _middlePointCache = new();

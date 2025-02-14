@@ -44,4 +44,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 182eed21787e40b6a11b59731e698b14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _spherePrefab: {fileID: 8725961919686190180, guid: 6804dd728d36c44e1a417d4a5d23d9ea, type: 3}
+  _planetPrefab: {fileID: 0}
+  _rotationSpeed: 10

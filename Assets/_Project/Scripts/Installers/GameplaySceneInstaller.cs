@@ -1,9 +1,10 @@
-using _Project.Scripts;
 using _Project.Scripts.Launcher;
 using _Project.Scripts.Launcher._Project.Scripts;
 using _Project.Scripts.Planet;
 using _Project.Scripts.Services;
+using _Project.Scripts.UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Zenject;
 using ResourceProvider = _Project.Scripts.Services.ResourceProvider;
 
@@ -21,11 +22,13 @@ namespace _Project.Scripts.Installers
             Container.Bind<ResourceProvider>().AsSingle();
             Container.Bind<PlanetGenerationService>().AsSingle();
             Container.Bind<PlanetController>().AsSingle();
+            Container.Bind<SceneManager>().AsSingle();
             
             var planet = Container.InstantiatePrefab(_planetPrefab);
             var view = planet.GetComponent<PlanetView>();
             Container.Bind<PlanetView>().FromInstance(view).AsSingle();
             
+            Container.Bind<SceneController>().FromComponentInHierarchy().AsSingle();
             Container.Bind<BallLauncher>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInstance(_ballPrefab).WhenInjectedInto<BallLauncher>();
             Container.BindInstance(_launchPoint).WhenInjectedInto<BallLauncher>();
