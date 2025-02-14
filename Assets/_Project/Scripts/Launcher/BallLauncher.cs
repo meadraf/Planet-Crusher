@@ -10,6 +10,7 @@ using Zenject;
 
 namespace _Project.Scripts.Launcher
 {
+    //TODO: Split this class into MVC
     public class BallLauncher : MonoBehaviour
     {
         [SerializeField] private float _launchForce = 10f;
@@ -19,15 +20,18 @@ namespace _Project.Scripts.Launcher
         [SerializeField] private float _trajectoryTimeStep = 0.02f;
         [SerializeField] private float _maxTrajectoryTime = 3f;
         [SerializeField] private LayerMask _collisionMask;
-        [SerializeField] private float _ballSpawnDelay = 0.3f; // Delay between ball spawns
-        [SerializeField] private int _maxBalls = 10; // Maximum number of balls
-        [SerializeField] private TMP_Text _ballsLeftText; // UI Text to display remaining balls
+        [SerializeField] private float _ballSpawnDelay = 0.3f;
+        [SerializeField] private int _maxBalls = 10;
+        [SerializeField] private TMP_Text _ballsLeftText;
+        [SerializeField] private GameObject _gameOverPopup; // Reference to the pop-up window
+        [SerializeField] private TMP_Text _gameOverText; // Text to display in the pop-up
+        [SerializeField] private Button _restartButton; // Button to restart the game
 
         private Vector2 _startTouchPosition;
         private Vector2 _currentTouchPosition;
         private bool _isDragging = false;
         private Camera _mainCamera;
-        private int _ballsLeft; // Counter for remaining balls
+        private int _ballsLeft;
 
         private Ball.Factory _ballFactory;
         private GameplayInput _input;
@@ -43,9 +47,15 @@ namespace _Project.Scripts.Launcher
 
         private void Start()
         {
-            _ballsLeft = _maxBalls; // Initialize the ball counter
-            UpdateBallsLeftText(); // Update the UI text
-            SpawnNextBall(); // Spawn the first ball
+            _ballsLeft = _maxBalls;
+            UpdateBallsLeftText();
+            SpawnNextBall();
+
+            // Hide the pop-up window at the start
+            if (_gameOverPopup != null)
+            {
+                _gameOverPopup.SetActive(false);
+            }
         }
 
         private void Awake()
@@ -78,35 +88,30 @@ namespace _Project.Scripts.Launcher
 
         private void SpawnNextBall()
         {
-            if (_ballsLeft <= 0) return; // Don't spawn if no balls are left
+            if (_ballsLeft <= 0) return;
 
             _currentBall = _ballFactory.Create();
             _currentBall.transform.position = _launchPoint.position;
 
-            // Assign random material
             var availableMaterials = _planetModel.UniqueMaterials;
             if (availableMaterials.Count > 0)
             {
-                int randomIndex = Random.Range(0, availableMaterials.Count);
+                var randomIndex = Random.Range(0, availableMaterials.Count);
                 _currentBall.SetMaterial(availableMaterials[randomIndex]);
             }
 
-            // Set line color to match the new ball
             if (_lineRenderer != null)
             {
-                Renderer ballRenderer = _currentBall.GetComponent<Renderer>();
+                var ballRenderer = _currentBall.GetComponent<Renderer>();
                 if (ballRenderer != null)
                 {
-                    var ballColor = ballRenderer.material;
-                    _lineRenderer.material = ballColor;
+                    var material = ballRenderer.material;
+                    _lineRenderer.material = material;
                 }
             }
 
-            // Disable physics until launch
-            Rigidbody rb = _currentBall.GetComponent<Rigidbody>();
+            var rb = _currentBall.GetComponent<Rigidbody>();
             rb.isKinematic = true;
-            
-             // Update the UI text
         }
 
         private void UpdateBallsLeftText()
@@ -129,6 +134,7 @@ namespace _Project.Scripts.Launcher
                 {
                     _lineRenderer.enabled = true;
                 }
+
                 UpdateTrajectory();
             }
         }
@@ -158,12 +164,12 @@ namespace _Project.Scripts.Launcher
 
         private Vector2 GetWorldTouchPosition(Vector2 screenPosition)
         {
-            Ray ray = _mainCamera.ScreenPointToRay(new Vector3(screenPosition.x, screenPosition.y, 0));
-            Plane plane = new Plane(Vector3.forward, _launchPoint.position);
+            var ray = _mainCamera.ScreenPointToRay(new Vector3(screenPosition.x, screenPosition.y, 0));
+            var plane = new Plane(Vector3.forward, _launchPoint.position);
 
-            if (plane.Raycast(ray, out float distance))
+            if (plane.Raycast(ray, out var distance))
             {
-                Vector3 worldPosition = ray.GetPoint(distance);
+                var worldPosition = ray.GetPoint(distance);
                 return new Vector2(worldPosition.x, worldPosition.y);
             }
 
@@ -174,31 +180,30 @@ namespace _Project.Scripts.Launcher
         {
             if (_lineRenderer == null || _currentBall == null) return;
 
-            Vector2 dragVector = _currentTouchPosition - _startTouchPosition;
-            float dragDistance = Mathf.Min(dragVector.magnitude, _maxDragDistance);
-            Vector2 dragDirection = dragVector.normalized;
+            var dragVector = _currentTouchPosition - _startTouchPosition;
+            var dragDistance = Mathf.Min(dragVector.magnitude, _maxDragDistance);
+            var dragDirection = dragVector.normalized;
 
-            Vector3 initialVelocity = new Vector3(
+            var initialVelocity = new Vector3(
                 dragDirection.x,
                 dragDirection.y,
                 -1
             ) * (_launchForce * (dragDistance / _maxDragDistance));
 
-            List<Vector3> trajectoryPoints = new List<Vector3>();
-            Vector3 position = _launchPoint.position;
-            Vector3 velocity = initialVelocity;
-            float timeStep = _trajectoryTimeStep;
-            float currentTime = 0f;
+            var trajectoryPoints = new List<Vector3>();
+            var position = _launchPoint.position;
+            var velocity = initialVelocity;
+            var timeStep = _trajectoryTimeStep;
+            var currentTime = 0f;
 
             while (currentTime < _maxTrajectoryTime)
             {
                 trajectoryPoints.Add(position);
 
                 velocity += Physics.gravity * timeStep;
-                Vector3 nextPosition = position + velocity * timeStep;
+                var nextPosition = position + velocity * timeStep;
 
-                RaycastHit hit;
-                if (Physics.Linecast(position, nextPosition, out hit, _collisionMask))
+                if (Physics.Linecast(position, nextPosition, out var hit, _collisionMask))
                 {
                     trajectoryPoints.Add(hit.point);
                     break;
@@ -216,35 +221,85 @@ namespace _Project.Scripts.Launcher
         {
             if (_currentBall == null) return;
 
-            Vector2 dragVector = _currentTouchPosition - _startTouchPosition;
-            float dragDistance = Mathf.Min(dragVector.magnitude, _maxDragDistance);
-            Vector2 dragDirection = dragVector.normalized;
+            var dragVector = _currentTouchPosition - _startTouchPosition;
+            var dragDistance = Mathf.Min(dragVector.magnitude, _maxDragDistance);
+            var dragDirection = dragVector.normalized;
 
-            Rigidbody ballRigidbody = _currentBall.GetComponent<Rigidbody>();
+            var ballRigidbody = _currentBall.GetComponent<Rigidbody>();
             ballRigidbody.isKinematic = false;
 
-            Vector3 launchVelocity = new Vector3(
+            var launchVelocity = new Vector3(
                 dragDirection.x,
                 dragDirection.y,
                 -1
             ) * (_launchForce * (dragDistance / _maxDragDistance));
 
             ballRigidbody.linearVelocity = launchVelocity;
+            _currentBall.DelayedDestroy();
             _ballsLeft--;
             UpdateBallsLeftText();
             _currentBall = null;
 
-            // Start coroutine to delay next ball spawn
             if (_ballsLeft > 0)
             {
                 StartCoroutine(DelayedBallSpawn());
+            }
+            else
+            {
+                CheckGameOver();
             }
         }
 
         private IEnumerator DelayedBallSpawn()
         {
-            yield return new WaitForSeconds(_ballSpawnDelay); // Wait for the specified delay
-            SpawnNextBall(); // Spawn the next ball after the delay
+            yield return new WaitForSeconds(_ballSpawnDelay);
+            SpawnNextBall();
+        }
+
+        private void CheckGameOver()
+        {
+            // Check if all spheres are destroyed or no balls are left
+            if (_ballsLeft <= 0 && AreAllSpheresDestroyed())
+            {
+                ShowGameOverPopup("All Spheres Destroyed!");
+            }
+            else if (_ballsLeft <= 0)
+            {
+                ShowGameOverPopup("No Balls Left!");
+            }
+        }
+
+        private bool AreAllSpheresDestroyed()
+        {
+            // Implement logic to check if all spheres are destroyed
+            // Example: Check if all sphere GameObjects are null or inactive
+            return true; // Replace with actual logic
+        }
+
+        private void ShowGameOverPopup(string message)
+        {
+            if (_gameOverPopup != null)
+            {
+                _gameOverPopup.SetActive(true);
+                if (_gameOverText != null)
+                {
+                    _gameOverText.text = message;
+                }
+            }
+        }
+
+        private void RestartGame()
+        {
+            // Reset the game state
+            _ballsLeft = _maxBalls;
+            UpdateBallsLeftText();
+            SpawnNextBall();
+
+            // Hide the pop-up window
+            if (_gameOverPopup != null)
+            {
+                _gameOverPopup.SetActive(false);
+            }
         }
     }
 }

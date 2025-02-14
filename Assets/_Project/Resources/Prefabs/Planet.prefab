@@ -45,4 +45,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _planetPrefab: {fileID: 0}
-  _rotationSpeed: 10
+  _rotationSpeed: 15

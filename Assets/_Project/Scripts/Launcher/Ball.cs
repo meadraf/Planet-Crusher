@@ -23,6 +23,10 @@ namespace _Project.Scripts.Launcher
                 _planetController = planetController;
             }
 
+            public void DelayedDestroy()
+            {
+                Destroy(gameObject, _lifeTime);
+            }
             public void SetMaterial(Material material)
             {
                 _ballMaterial = material;

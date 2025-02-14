@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using _Project.Scripts.Planet;
+using _Project.Scripts.Planet.PlanetPresets;
 using UnityEngine;
 using Zenject;
 
@@ -8,13 +9,9 @@ namespace _Project.Scripts.Services
 {
     public class PlanetGenerationService
     {
-        private GameObject _spherePrefab;
-        private float _radius = 4f;
-        private float _smallSphereRadius = 0.6f;
-        private int _subdivisions = 2;
-        private Material[] _materials;
-        private int _numberOfPatches = 4;
-        private float _neighborDistance;
+        private readonly GameObject _spherePrefab;
+        private readonly Material[] _materials;
+        private readonly IPlanetPreset _planetPreset;
 
         private readonly Dictionary<long, int> _middlePointCache = new();
         private readonly List<Vector3> _vertices = new();
@@ -26,9 +23,9 @@ namespace _Project.Scripts.Services
         [Inject]
         public PlanetGenerationService(ResourceProvider resourceProvider)
         {
-            var resourceProvider1 = resourceProvider;
-            _materials = resourceProvider1.LoadSphereMaterials();
-            _spherePrefab = resourceProvider1.LoadSpherePrefab();
+            _planetPreset = new SmallPlanetPreset();
+            _materials = resourceProvider.LoadSphereMaterials();
+            _spherePrefab = resourceProvider.LoadSpherePrefab();
         }
 
         public PlanetData GeneratePlanet(Transform parentTransform)
@@ -82,7 +79,7 @@ namespace _Project.Scripts.Services
 
         private void Subdivide()
         {
-            for (var i = 0; i < _subdivisions; i++)
+            for (var i = 0; i < _planetPreset.Subdivisions; i++)
             {
                 var newTriangles = new List<int>();
                 for (var tri = 0; tri < _triangles.Count; tri += 3)
@@ -107,7 +104,7 @@ namespace _Project.Scripts.Services
         private void GenerateColorPatches()
         {
             var centers = new List<Vector3>();
-            for (var i = 0; i < _numberOfPatches; i++)
+            for (var i = 0; i < _planetPreset.NumberOfPatches; i++)
             {
                 centers.Add(Random.onUnitSphere);
                 _colorPatches.Add(new Dictionary<Material, HashSet<GameObject>>());
@@ -169,10 +166,10 @@ namespace _Project.Scripts.Services
         {
             foreach (var vertex in _vertices)
             {
-                var position = vertex * _radius;
+                var position = vertex * _planetPreset.Radius;
                 var sphere = Object.Instantiate(_spherePrefab, position, Quaternion.identity, parentTransform);
                 _sphereObjects[vertex] = sphere;
-                sphere.transform.localScale = Vector3.one * (_smallSphereRadius * 2);
+                sphere.transform.localScale = Vector3.one * (_planetPreset.SmallSphereRadius * 2);
             }
 
             GenerateColorPatches();

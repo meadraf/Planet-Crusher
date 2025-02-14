@@ -7,7 +7,7 @@ namespace _Project.Scripts.Planet
     public class PlanetView : MonoBehaviour
     {
         [SerializeField] private GameObject _planetPrefab;
-        [SerializeField] private float _rotationSpeed = 6f;
+        [SerializeField] private float _rotationSpeed = 10f;
 
         private PlanetModel _planetModel;
         private Transform _transform;
