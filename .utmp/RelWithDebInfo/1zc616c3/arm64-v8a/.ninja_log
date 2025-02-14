@@ -1,0 +1,12 @@
+# ninja log v5
+4	287	1739405434969947540	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	8449d9517085147d
+289	463	1739405435139232972	/Users/antonmanikin/Documents/Unity_projects/Planet Crusher/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/1zc616c3/obj/arm64-v8a/libswappywrapper.so	39da97d6f82ccb80
+2	1163	1739405435803539179	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	c72c6e917cd3add7
+3	1164	1739405435842554223	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	8f73c46bc571cdc5
+1	1173	1739405435852217155	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	a236e252698b3741
+0	1208	1739405435884345372	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	61ecab771d9b6783
+3	1393	1739405436070221727	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	4072227950446fe7
+1	1443	1739405436122432987	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	b9aa1691ec923ae6
+2	1666	1739405436340610053	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	f65262a41a53bc8e
+0	1806	1739405436485448814	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	8501f45b61794a8a
+1806	1961	1739405436635017732	/Users/antonmanikin/Documents/Unity_projects/Planet Crusher/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/1zc616c3/obj/arm64-v8a/libgame.so	494f3212aede342b
